@@ -22,7 +22,7 @@ Combined `FluxImageGenerator` workspace split into three:
   (`flux_video_generator.py`), the Wan side of `DATA/` (now at the root, no
   more `FluxImageGenerator` sub-namespace), the `_wan_spike_t2v_1_3b.py` /
   `wan_spike_out/` proof-of-life artifacts, and the
-  `CivitaiBatchResumableDownloader_V1_1.py` tool. Everything Flux-specific
+  `CivitaiBatchResumableDownloader.py` tool. Everything Flux-specific
   was deleted from here (it now lives in FluxImageGeneration).
 - The new sibling **FluxImageGeneration** workspace got
   `flux_image_generator.py`, `flux_lora_pair_downloader.py`, the Flux side of
