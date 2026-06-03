@@ -1,0 +1,44 @@
+# --- Environments / dependencies ---
+venv/
+.venv/
+env/
+
+# --- User runtime data: settings, history, generated outputs, references ---
+DATA/
+
+# --- Local model weights (real models live in C:\AI_Models, never in the repo) ---
+*.safetensors
+*.ckpt
+*.pt
+*.bin
+*.gguf
+
+# --- Python caches / build artifacts ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+*.spec
+
+# --- Wan video gen spike (proof-of-life — not part of the app) ---
+tools/_wan_spike*.py
+tools/wan_spike_out/
+
+# --- Personal autosave tooling (Task Scheduler driven, hardcodes local paths) ---
+tools/hourly_git_autosave.ps1
+tools/run_hourly_git_autosave_hidden.vbs
+tools/*.log
+*.log
+
+# --- Dev-internal / personal workspace files (kept on disk, not committed) ---
+.claude/
+CLAUDE.md
+*.code-workspace
+
+# --- OS / editor junk ---
+Thumbs.db
+desktop.ini
+.DS_Store
+.idea/
+.vscode/

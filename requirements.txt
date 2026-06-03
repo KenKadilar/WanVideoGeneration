@@ -1,0 +1,15 @@
+--extra-index-url https://download.pytorch.org/whl/cu124
+
+PyQt6>=6.6
+torch==2.6.0+cu124
+diffusers==0.38.0
+transformers>=4.50
+accelerate>=1.0
+peft>=0.10
+safetensors>=0.5
+sentencepiece>=0.2
+imageio-ffmpeg>=0.5
+pillow>=10
+huggingface_hub>=0.25
+numpy>=2.0
+protobuf>=4
