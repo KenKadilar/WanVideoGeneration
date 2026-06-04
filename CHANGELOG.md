@@ -1,4 +1,4 @@
-# WanVideoGeneration — Changelog
+# WanVideoGeneration: Changelog
 
 Single hand-maintained changelog. Newest first. Versions track the in-app
 `APP_VERSION`; "Unreleased" collects work since the last version. Git tracks
@@ -8,7 +8,7 @@ This workspace was split off from the combined `FluxImageGenerator` workspace
 on 2026-05-21 (see "Workspace split" entry below). Detail on the older Flux
 features (V1.0 through V1.9 of the combined app) lives in the
 [FluxImageGeneration](https://github.com/CanGitArchive/FluxImageGeneration)
-repo's `CHANGELOG.md` — those features are summarized as carryover there,
+repo's `CHANGELOG.md`; those features are summarized as carryover there,
 not duplicated here.
 
 ## Unreleased
@@ -39,7 +39,7 @@ Combined `FluxImageGenerator` workspace split into three:
   filled up under Wan 14B + Flux checkpoints. Linux dual-boot partition on
   Disk 1 was shrunk from 608 GB to 216 GB; the freed ~392 GB became a new
   `M:` drive labeled "Models". All code paths still read/write
-  `C:\AI_Models\...` — bytes physically live on `M:`.
+  `C:\AI_Models\...`; bytes physically live on `M:`.
 - Code-level changes in this workspace:
   - `DATA_DIR = APP_DIR / "DATA"` (dropped the `"FluxImageGenerator"` sub-namespace).
   - `VIDEOS_DIR / VIDEO_REF_FRAMES_DIR / VIDEO_BESTOF_DIR` renamed to
@@ -51,17 +51,17 @@ Combined `FluxImageGenerator` workspace split into three:
     `FluxImageGeneration\DATA\Outputs\` / `BestOf\` via a `FLUX_WORKSPACE_DIR`
     absolute path constant near the top of `flux_video_generator.py`.
 
-### Video generator — Wan checkpoint + LoRA support
+### Video generator: Wan checkpoint + LoRA support
 - **Wan checkpoints** (CivitAI-style `.safetensors` fine-tunes) now load via
   `WanTransformer3DModel.from_single_file(file, config=base/"transformer")` +
-  `WanPipeline.from_pretrained(base, transformer=transformer)` — same two-step
+  `WanPipeline.from_pretrained(base, transformer=transformer)`, the same two-step
   approach the Flux app uses, with the base model's text encoders / VAE /
   scheduler / config borrowed from the matching architecture's diffusers
   install. On `from_single_file()` failure the log emits a diagnostic (key
   count + top-level prefixes from the safetensors header) so non-standard
   exports can get targeted converters later.
 - **Drop-in folder convention:** `C:\AI_Models\Wan_Checkpoints\T2V-1.3B\` and
-  `T2V-14B\` (architecturally different — checkpoints can't cross). Folders
+  `T2V-14B\` (architecturally different, checkpoints can't cross). Folders
   auto-create on launch. Optional `.png`/`.jpg`/`.webp` preview next to each
   file (same convention as Flux LoRAs). Checkpoints appear in the model
   dropdown after the base models tagged `[CKP-1.3B]` / `[CKP-14B]`, inherit
@@ -71,8 +71,8 @@ Combined `FluxImageGenerator` workspace split into three:
   / remove / clear-all. Mirrors the Flux LoRA UX. Diffusers-native loader:
   `load_lora_weights` per file → `set_adapters(names, weights)` →
   `fuse_lora()` → `unload_lora_weights()`, applied **before**
-  `enable_sequential_cpu_offload()` (offload hooks then only see plain modules
-  — the same critical ordering as the Flux app).
+  `enable_sequential_cpu_offload()` (offload hooks then only see plain modules,
+  the same critical ordering as the Flux app).
 - **LoRA folder convention:** `C:\AI_Models\Wan_LoRAs\1.3B\` and
   `C:\AI_Models\Wan_LoRAs\14B\`. The 14B subfolder is shared between
   T2V-14B and I2V-14B since the transformer architecture is the same; the
@@ -86,21 +86,21 @@ Combined `FluxImageGenerator` workspace split into three:
   with a log line. Settings (`video_settings.json`) persist the stack across
   launches and `isinstance`-validate every field, including the file/weight/arch
   triple.
-- **`model_exists()` is checkpoint-aware** — for a `[CKP]` entry, both the
+- **`model_exists()` is checkpoint-aware**: for a `[CKP]` entry, both the
   base model dir AND the checkpoint .safetensors file must be present (and
   the base must not be mid-download per the existing `.incomplete` check).
 - **Refactored model registry:** `WAN_BASE_MODELS` (config) + `_MODEL_ENTRIES`
   (runtime, rebuilt by `rebuild_model_registry()`). The dropdown reads from
   `_MODEL_ENTRIES`; every entry carries `kind` (base/checkpoint),
   `pipeline_kind` (t2v/i2v), `arch` (1.3B/14B), `base_path`,
-  `checkpoint_path`, resolutions, and defaults — so per-entry logic is one
+  `checkpoint_path`, resolutions, and defaults, so per-entry logic is one
   lookup instead of two registries.
 - **Time-estimator cold-start is now arch-based**, not per-model-name, so
   `[CKP-14B] my_anime.safetensors` correctly uses the 14B baseline (~580 s/step
   scaled by pixel volume) until real history accrues.
 
-### Video generator (new sibling app — `flux_video_generator.py` v0.1)
-- **`flux_video_generator.py`** — PyQt6 desktop app for local Wan 2.1 video
+### Video generator (new sibling app, `flux_video_generator.py` v0.1)
+- **`flux_video_generator.py`**: PyQt6 desktop app for local Wan 2.1 video
   generation on the 6 GB GPU, sibling to `flux_image_generator.py` (shares the
   venv, the `DATA/FluxImageGenerator/` folder, and the `C:\AI_Models\` pool).
   Same dark purple/blue theme, same worker/Gallery patterns. Top tabs:
@@ -120,14 +120,14 @@ Combined `FluxImageGenerator` workspace split into three:
   `DATA/FluxImageGenerator/Outputs/` and `BestOf/` folders (the
   cross-app integration the connector app will hand off through).
   Center-cropped/resized to match the selected output resolution.
-- **`model_exists()` is robust to partial downloads** — checks for
+- **`model_exists()` is robust to partial downloads**: checks for
   `.incomplete` files under `.cache/huggingface/download/` rather than just
   `model_index.json` (which `snapshot_download` writes early). So a half-pulled
   T2V-14B correctly shows `[MISSING]` and refuses to generate, instead of
   loading a broken pipeline.
 - **Outputs land in `DATA/FluxImageGenerator/Videos/`** as `wan_{t2v|i2v}_{seed}_{ts}.mp4`
   plus a `.thumb.jpg` first-frame thumbnail (ffmpeg via `imageio-ffmpeg`) and
-  a full `.json` sidecar — model, prompt, negative_prompt, width/height,
+  a full `.json` sidecar: model, prompt, negative_prompt, width/height,
   num_frames, fps, duration_seconds, steps, guidance, seed, start_frame,
   elapsed_seconds, timestamp. The sidecar shape matches the connector spec
   in `VIDEO_GEN_CONTINUATION_HANDOFF.md`.
@@ -152,7 +152,7 @@ Combined `FluxImageGenerator` workspace split into three:
 - **LoRAs now actually apply** *(confirmed working)*. The manual state-dict
   merge only matched LoRAs already named like the diffusers FluxTransformer;
   the dominant CivitAI format is kohya/BFL-native
-  (`lora_unet_double_blocks_0_img_attn_qkv` — fused QKV, original BFL
+  (`lora_unet_double_blocks_0_img_attn_qkv`, fused QKV, original BFL
   architecture) and was silently skipped (0 layers merged). New
   `apply_lora_stack()` uses diffusers' native `load_lora_weights()` (proper
   BFL→diffusers remap + QKV/MLP split), then
@@ -165,12 +165,12 @@ Combined `FluxImageGenerator` workspace split into three:
   dev/checkpoints we enable `true_cfg_scale` (default **2.0**, tunable via
   `cfg["ip_true_cfg"]`), an empty negative prompt, and a black
   `negative_ip_adapter_image`. ~2x slower (two forward passes/step), only
-  when IP is on. **schnell** now skips true CFG entirely — it is
+  when IP is on. **schnell** now skips true CFG entirely; it is
   timestep-distilled and cannot do CFG, so forcing it produced a white
   blowout; XLabs flux-ip-adapter-v2 is a dev model anyway (the log now warns
   on schnell + IP). The earlier `true_cfg=4.0` over-saturated, especially
-  with a high IP strength slider — lowered to 2.0 and the log now hints to
-  drop IP strength to ~0.5–0.7 if output is blown-out/zoomed.
+  with a high IP strength slider; lowered to 2.0 and the log now hints to
+  drop IP strength to ~0.5-0.7 if output is blown-out/zoomed.
 - **Time estimator is now combination-aware.** V1.9 modeled IP-Adapter as a
   fixed +22 s add-on, but IP-Adapter on dev/checkpoints uses true CFG (two
   forward passes/step) so it ~**doubles** per-step time (multiplicative). It
@@ -182,22 +182,22 @@ Combined `FluxImageGenerator` workspace split into three:
   exist, fall back to the plain rate × `IP_TRUE_CFG_MULT` (1.95, cold-start
   only, skipped for schnell). Removed the old `_extra_overhead` additive
   model. Verified against real history: dev+IP now estimates ~7m33s vs
-  ~443–465 s actual; all other combos still accurate.
+  ~443-465 s actual; all other combos still accurate.
 - **Checkpoint failures are now diagnosable.** On a failed
   `from_single_file()`, the log now reports the file's key count + top-level
   prefixes (header-only probe, fast) and the full error, instead of a guessed
   "ComfyUI format" message. Standard BFL `double_blocks` single-files already
   convert in diffusers 0.38; this surfaces what non-standard variants actually
-  are so a targeted converter can be added later. (Loading logic unchanged —
+  are so a targeted converter can be added later. (Loading logic unchanged;
   working checkpoints unaffected.)
 
 ### Features
 - **Taskbar flash when a generation finishes.** `QApplication.alert()` flashes
   the window/taskbar button on completion and on failure (until the window is
   focused), so you can walk away during long runs.
-- **IP True CFG is now a UI knob** (spinbox next to IP Strength, 1.0–8.0,
+- **IP True CFG is now a UI knob** (spinbox next to IP Strength, 1.0-8.0,
   persisted). IP Strength and True CFG interact: high True CFG = stronger
-  reference but white blowout; low True CFG (1.0–1.5) lets you push IP
+  reference but white blowout; low True CFG (1.0-1.5) lets you push IP
   Strength higher. Exposing it lets you find the pair that works for a given
   reference (XLabs flux-ip-adapter-v2 has a narrow usable band) instead of
   fighting a hardcoded value.
@@ -208,10 +208,10 @@ Combined `FluxImageGenerator` workspace split into three:
   grid** (newest first, cap 300, Refresh re-scans) | **large preview**
   (re-scales when you drag the splitter; double-click to fullscreen) |
   **metadata panel** + actions. **Copy to Generation** restores everything
-  from the per-image `.json` sidecar — prompt, model, size (added to combo
+  from the per-image `.json` sidecar: prompt, model, size (added to combo
   if non-default), steps, guidance, seed, sequence length, LoRA stack
   (skips any LoRAs missing from disk), IP-Adapter image + strength + true
-  CFG, img2img reference + strength — then jumps to the Generate tab.
+  CFG, img2img reference + strength, then jumps to the Generate tab.
   Reference Images tab has no sidecars, so it exposes "Use as img2img
   Reference" and "Use as IP-Adapter Reference" buttons (also auto-enable
   IP-Adapter when used as one). Double-click a thumbnail OR the preview
@@ -219,7 +219,7 @@ Combined `FluxImageGenerator` workspace split into three:
   to close).
 - **Per-image metadata enriched** for full Copy-to-Generation: sidecars now
   also store the full IP-Adapter image path, IP true CFG, the img2img
-  reference path, and img2img strength (previously dropped — Copy-to-Gen
+  reference path, and img2img strength (previously dropped, so Copy-to-Gen
   couldn't restore img2img or true CFG). Older sidecars still load; the new
   fields are just absent and skipped.
 - **Randomize-seed checkbox** under the Seed field. When checked, the seed
@@ -236,7 +236,7 @@ Combined `FluxImageGenerator` workspace split into three:
   `flux_lora_pair_downloader_V1_4.py` → `flux_lora_pair_downloader.py`.
 - Consolidated the 12 per-version `change_log_V1_*.md` files into this single
   `CHANGELOG.md`; removed `version_notes/` and the `combine_version_notes`
-  script (no longer needed — one file, edited by hand).
+  script (no longer needed; one file, edited by hand).
 - Deleted the redundant project `models/` folder (was 10 MB of metadata only;
   the real ~54 GB FLUX.1-dev lives in `C:\AI_Models` and is what the code uses).
 - Added `.gitignore` (excludes `venv/`, `DATA/`, `models/`, model weights,
@@ -247,11 +247,11 @@ Combined `FluxImageGenerator` workspace split into three:
 - `tools/` autosave repointed to this project; registered an hourly Windows
   Task Scheduler job that does `git add -A` + commit (no push).
 
-## V1.0 — V1.9 (Flux image generator, pre-split)
+## V1.0 - V1.9 (Flux image generator, pre-split)
 
 Pre-split versions of the combined app were Flux-image-generator-focused.
 Their per-version notes live in the
 [FluxImageGeneration](https://github.com/CanGitArchive/FluxImageGeneration)
-repo's `CHANGELOG.md` under "Carryover features and fixes" — not duplicated
+repo's `CHANGELOG.md` under "Carryover features and fixes", not duplicated
 here. Wan video generation itself never had a numbered release before the
 split (it lived under "Unreleased" in the combined changelog).
