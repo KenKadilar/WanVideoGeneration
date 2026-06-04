@@ -17,7 +17,7 @@ The 6 GB VRAM ceiling drove every design choice: bf16 throughout, sequential CPU
 
 ## Tech stack
 
-PyQt6 · diffusers 0.38 · transformers · accelerate · peft · safetensors · torch 2.6.0+cu124 · imageio-ffmpeg · Python 3.12.
+PyQt6, diffusers 0.38, transformers, accelerate, peft, safetensors, torch 2.6.0+cu124, imageio-ffmpeg, Python 3.12.
 
 ## Hardware
 

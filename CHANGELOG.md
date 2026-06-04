@@ -116,7 +116,7 @@ Combined `FluxImageGenerator` workspace split into three:
   Verified at 2.41 GB peak VRAM for T2V-1.3B. `callback_on_step_end` drives
   the progress bar and gives cooperative cancel.
 - **I2V start frame** can be loaded via file picker, drag-drop, Ctrl+V paste,
-  or "From Flux Gallery…" which browses the existing
+  or "From Flux Gallery..." which browses the existing
   `DATA/FluxImageGenerator/Outputs/` and `BestOf/` folders (the
   cross-app integration the connector app will hand off through).
   Center-cropped/resized to match the selected output resolution.
@@ -139,7 +139,7 @@ Combined `FluxImageGenerator` workspace split into three:
 - **Time estimator** learns per-model s/step from `video_gen_history.json`
   (last 50 runs), normalizes by pixel volume × num_frames, falls back to the
   spike-measured 1.3B baseline scaled by pixel ratio when history is empty.
-  "Guess time" button + live countdown timer ("Elapsed: 12m 4s · ~28m 1s left").
+  "Guess time" button + live countdown timer ("Elapsed: 12m 4s, ~28m 1s left").
 - **Settings persisted to `DATA/FluxImageGenerator/video_settings.json`**
   (separate from the image gen's `settings.json`); load uses `isinstance`
   hardening for corrupt values; the start-frame path is restored on launch
