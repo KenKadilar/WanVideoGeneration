@@ -1,5 +1,5 @@
 r"""
-Flux Video Generator — sibling PyQt6 app to flux_image_generator.py.
+Flux Video Generator, sibling PyQt6 app to flux_image_generator.py.
 
 Local Wan 2.1 text-to-video and image-to-video on a 6 GB GPU using the proven
 diffusers stack: WanPipeline / WanImageToVideoPipeline + sequential CPU offload
@@ -90,18 +90,18 @@ WAN_LORAS_DIR = Path("C:/AI_Models/Wan_LoRAs")              # 1.3B/, 14B/
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp", ".bmp"}
 VIDEO_EXTS = {".mp4", ".webm", ".mov", ".mkv"}
 
-# Wan default constants — proven recipe from tools/_wan_spike_t2v_1_3b.py.
+# Wan default constants, proven recipe from tools/_wan_spike_t2v_1_3b.py.
 DEFAULT_NEGATIVE = (
     "low quality, blurry, distorted, watermark, text, deformed face, ugly, "
     "oversaturated, jpeg artifacts, static, frozen"
 )
 
-# Cold-start fallback rate (s/step) — by base arch, overridden by real history.
+# Cold-start fallback rate (s/step), by base arch, overridden by real history.
 # Both measured at 832×480×81f on the RTX 4050 6 GB / 64 GB RAM box:
 #   1.3B: 2425 s / 50 steps = 48.5 s/step
 #   14B:  ~244 s/step (2026-05-22, bf16 model, sequential CPU offload)
 # NOTE: this rate is the *compute* rate at 480p. The 14B model thrashes RAM at
-# 720p (44 GB model + 720p activations > 64 GB) — there the real rate is ~100x
+# 720p (44 GB model + 720p activations > 64 GB), there the real rate is ~100x
 # worse and the estimate below is meaningless. See CLAUDE.md "Roadmap" #2.
 COLD_START_SPS_BY_ARCH = {
     "1.3B": 48.5,
@@ -110,7 +110,7 @@ COLD_START_SPS_BY_ARCH = {
 
 
 # ---------------------------------------------------------------------------
-# Wan model registry — base models + discovered checkpoints (runtime)
+# Wan model registry, base models + discovered checkpoints (runtime)
 # ---------------------------------------------------------------------------
 
 # Base model config. Each entry is keyed by display name. `arch` is "1.3B" or
@@ -169,7 +169,7 @@ CHECKPOINT_SUBFOLDERS: Dict[str, str] = {
     "T2V-14B":  "Wan 2.1 T2V-14B",
 }
 
-# Runtime model registry — base + discovered checkpoints, rebuilt by
+# Runtime model registry, base + discovered checkpoints, rebuilt by
 # rebuild_model_registry(). Each entry:
 #   "kind":           "base" | "checkpoint"
 #   "pipeline_kind":  "t2v" | "i2v"  (from base)
@@ -295,7 +295,7 @@ def preview_for_file(file: Path) -> Optional[Path]:
     return None
 
 
-# Populate the registry at import time so the module is self-sufficient — a
+# Populate the registry at import time so the module is self-sufficient, a
 # headless consumer (e.g. the future connector app) can construct and run a
 # GenerateWorker without first building a MainWindow. MainWindow.__init__ still
 # calls rebuild_model_registry() again, which just re-scans for newly added
@@ -477,7 +477,7 @@ def extract_thumbnail(video_path: Path, thumb_path: Path) -> bool:
 
 
 # ---------------------------------------------------------------------------
-# GenerateWorker — runs the Wan pipeline in a background thread
+# GenerateWorker, runs the Wan pipeline in a background thread
 # ---------------------------------------------------------------------------
 
 class GenerateWorker(QThread):
@@ -534,7 +534,7 @@ class GenerateWorker(QThread):
         )
 
         # ------------------------------------------------------------------
-        # Load pipeline (CPU offload + VAE tiling/slicing — proven 6 GB stack)
+        # Load pipeline (CPU offload + VAE tiling/slicing, proven 6 GB stack)
         # ------------------------------------------------------------------
         t0 = time.perf_counter()
         if entry["kind"] == "checkpoint" and checkpoint_path is not None:
@@ -577,7 +577,7 @@ class GenerateWorker(QThread):
         # ------------------------------------------------------------------
         # Apply LoRA stack BEFORE CPU offload (so offload hooks see fused
         # weights). Pattern mirrors flux_image_generator.apply_lora_stack:
-        # load_lora_weights per file → set_adapters → fuse_lora → unload.
+        # load_lora_weights per file -> set_adapters -> fuse_lora -> unload.
         # ------------------------------------------------------------------
         lora_stack: List[Dict[str, Any]] = cfg.get("lora_stack") or []
         if lora_stack:
@@ -768,12 +768,12 @@ def _fit_image(img, target_w: int, target_h: int):
     src_ratio = src_w / src_h
     tgt_ratio = target_w / target_h
     if src_ratio > tgt_ratio:
-        # Source is wider — crop sides.
+        # Source is wider, crop sides.
         new_w = int(src_h * tgt_ratio)
         x0 = (src_w - new_w) // 2
         img = img.crop((x0, 0, x0 + new_w, src_h))
     elif src_ratio < tgt_ratio:
-        # Source is taller — crop top/bottom.
+        # Source is taller, crop top/bottom.
         new_h = int(src_w / tgt_ratio)
         y0 = (src_h - new_h) // 2
         img = img.crop((0, y0, src_w, y0 + new_h))
@@ -1085,16 +1085,16 @@ class MainWindow(QMainWindow):
         self.start_frame_preview.setMinimumHeight(160)
         sf_lay.addWidget(self.start_frame_preview)
 
-        self.start_frame_path_label = QLabel("(none — drop or paste an image, or browse)")
+        self.start_frame_path_label = QLabel("(none, drop or paste an image, or browse)")
         self.start_frame_path_label.setWordWrap(True)
         self.start_frame_path_label.setStyleSheet("color:#9aa3c8;font-size:11px;")
         sf_lay.addWidget(self.start_frame_path_label)
 
         sf_btn_row = QHBoxLayout()
-        self.start_frame_browse_btn = QPushButton("Browse…")
+        self.start_frame_browse_btn = QPushButton("Browse...")
         self.start_frame_browse_btn.clicked.connect(self._on_start_frame_pick)
         sf_btn_row.addWidget(self.start_frame_browse_btn)
-        self.start_frame_from_flux_btn = QPushButton("From Flux Gallery…")
+        self.start_frame_from_flux_btn = QPushButton("From Flux Gallery...")
         self.start_frame_from_flux_btn.clicked.connect(self._on_start_frame_from_flux)
         sf_btn_row.addWidget(self.start_frame_from_flux_btn)
         self.start_frame_clear_btn = QPushButton("Clear")
@@ -1194,7 +1194,7 @@ class MainWindow(QMainWindow):
         plp.addWidget(_section_label("Prompt"))
         self.prompt_edit = QPlainTextEdit()
         self.prompt_edit.setPlaceholderText(
-            "Describe the scene and motion you want Wan to render…"
+            "Describe the scene and motion you want Wan to render..."
         )
         self.prompt_edit.setMinimumHeight(70)
         self.prompt_edit.setMaximumHeight(120)
@@ -1257,7 +1257,7 @@ class MainWindow(QMainWindow):
         btn_row.addWidget(self.generate_btn)
         bl.addLayout(btn_row)
 
-        # Log box (collapsible — just a small read-only area)
+        # Log box (collapsible, just a small read-only area)
         self.log_box = QPlainTextEdit()
         self.log_box.setReadOnly(True)
         self.log_box.setMaximumHeight(140)
@@ -1472,7 +1472,7 @@ class MainWindow(QMainWindow):
         return w
 
     # ------------------------------------------------------------------
-    # Theme — verbatim QSS from flux_image_generator.py (same palette)
+    # Theme, verbatim QSS from flux_image_generator.py (same palette)
     # ------------------------------------------------------------------
 
     def apply_style(self) -> None:
@@ -1586,7 +1586,7 @@ class MainWindow(QMainWindow):
             self.neg_edit.setPlainText(s["negative_prompt"])
         if isinstance(s.get("start_frame"), str) and Path(s["start_frame"]).exists():
             self._set_start_frame(s["start_frame"])
-        # LoRA stack restore — keep only entries whose file still exists.
+        # LoRA stack restore, keep only entries whose file still exists.
         raw_stack = s.get("lora_stack")
         if isinstance(raw_stack, list):
             restored: List[Dict[str, Any]] = []
@@ -1647,7 +1647,7 @@ class MainWindow(QMainWindow):
         entry = get_entry(name) if name else None
         if not entry:
             return
-        # Resolution list — preserve current selection if still valid.
+        # Resolution list, preserve current selection if still valid.
         prev_label = self.resolution_combo.currentText()
         self.resolution_combo.clear()
         for w, h, label in entry["resolutions"]:
@@ -1829,7 +1829,7 @@ class MainWindow(QMainWindow):
             QMessageBox.information(
                 self, "Flux Gallery missing",
                 "Couldn't find the Flux outputs/best-of folder. Generate some "
-                "Flux images first, or use Browse… instead.",
+                "Flux images first, or use Browse... instead.",
             )
             return
         path, _ = QFileDialog.getOpenFileName(
@@ -1850,7 +1850,7 @@ class MainWindow(QMainWindow):
         else:
             self.start_frame_preview.set_image(None)
             self.start_frame_path_label.setText(
-                "(none — drop or paste an image, or browse)"
+                "(none, drop or paste an image, or browse)"
             )
 
     # Drag/drop + Ctrl+V paste for start frame.
@@ -1984,7 +1984,7 @@ class MainWindow(QMainWindow):
                 if p.exists():
                     valid.append(item)
                 else:
-                    self._log(f"LoRA file missing — skipping: {p}")
+                    self._log(f"LoRA file missing, skipping: {p}")
             lora_stack = valid
 
         return {
@@ -2020,7 +2020,7 @@ class MainWindow(QMainWindow):
 
         self.progress_bar.setRange(0, 100)
         self.progress_bar.setValue(0)
-        self.progress_bar.setFormat("preparing… %p%")
+        self.progress_bar.setFormat("preparing... %p%")
         self.log_box.clear()
         self._log(f"Generating with {cfg['model']} (seed={cfg['seed']})")
 
@@ -2039,7 +2039,7 @@ class MainWindow(QMainWindow):
 
     def _on_cancel(self) -> None:
         if self.worker and self.worker.isRunning():
-            self._log("Cancel requested — will stop at the next step.")
+            self._log("Cancel requested, will stop at the next step.")
             self.worker.request_cancel()
             self.cancel_btn.setEnabled(False)
 
@@ -2123,7 +2123,7 @@ class MainWindow(QMainWindow):
         sf = meta.get("start_frame")
         if isinstance(sf, str) and Path(sf).exists():
             self._set_start_frame(sf)
-        # LoRA stack restore — skip files that no longer exist.
+        # LoRA stack restore, skip files that no longer exist.
         raw_stack = meta.get("lora_stack")
         if isinstance(raw_stack, list):
             cur_name = self.model_combo.currentData()

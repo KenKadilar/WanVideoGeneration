@@ -21,7 +21,7 @@ build/
 dist/
 *.spec
 
-# --- Wan video gen spike (proof-of-life — not part of the app) ---
+# --- Wan video gen spike (proof-of-life, not part of the app) ---
 tools/_wan_spike*.py
 tools/wan_spike_out/
 

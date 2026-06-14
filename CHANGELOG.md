@@ -35,7 +35,7 @@ Combined `FluxImageGenerator` workspace split into three:
   `train\_prep_face_dataset.py`) since it's the only consumer. Removes the
   cross-workspace coupling that workspace's CLAUDE.md had flagged as a risk.
   Path constants in `LoRA_Maker.py` updated to point at the local copy.
-- **`C:\AI_Models\` → NTFS junction → `M:\AI_Models\`** (~333 GB). `C:` had
+- **`C:\AI_Models\` -> NTFS junction -> `M:\AI_Models\`** (~333 GB). `C:` had
   filled up under Wan 14B + Flux checkpoints. Linux dual-boot partition on
   Disk 1 was shrunk from 608 GB to 216 GB; the freed ~392 GB became a new
   `M:` drive labeled "Models". All code paths still read/write
@@ -46,7 +46,7 @@ Combined `FluxImageGenerator` workspace split into three:
     `Outputs / ReferenceImages / BestOf` (the "Video" prefix made sense when
     they sat next to the Flux app's same-named folders; now they own the
     DATA root, so the prefix is dead weight).
-  - `SETTINGS_FILE` / `HISTORY_FILE` renamed `video_settings.json` / `video_gen_history.json` → `settings.json` / `gen_history.json`.
+  - `SETTINGS_FILE` / `HISTORY_FILE` renamed `video_settings.json` / `video_gen_history.json` -> `settings.json` / `gen_history.json`.
   - `FLUX_OUTPUTS_DIR / FLUX_BESTOF_DIR` now point at the sibling
     `FluxImageGeneration\DATA\Outputs\` / `BestOf\` via a `FLUX_WORKSPACE_DIR`
     absolute path constant near the top of `flux_video_generator.py`.
@@ -69,8 +69,8 @@ Combined `FluxImageGenerator` workspace split into three:
   (I2V community fine-tunes are rare).
 - **Wan LoRA stack** with reorder / per-LoRA weight / preview thumbnail / add
   / remove / clear-all. Mirrors the Flux LoRA UX. Diffusers-native loader:
-  `load_lora_weights` per file → `set_adapters(names, weights)` →
-  `fuse_lora()` → `unload_lora_weights()`, applied **before**
+  `load_lora_weights` per file -> `set_adapters(names, weights)` ->
+  `fuse_lora()` -> `unload_lora_weights()`, applied **before**
   `enable_sequential_cpu_offload()` (offload hooks then only see plain modules,
   the same critical ordering as the Flux app).
 - **LoRA folder convention:** `C:\AI_Models\Wan_LoRAs\1.3B\` and
@@ -155,7 +155,7 @@ Combined `FluxImageGenerator` workspace split into three:
   (`lora_unet_double_blocks_0_img_attn_qkv`, fused QKV, original BFL
   architecture) and was silently skipped (0 layers merged). New
   `apply_lora_stack()` uses diffusers' native `load_lora_weights()` (proper
-  BFL→diffusers remap + QKV/MLP split), then
+  BFL->diffusers remap + QKV/MLP split), then
   `set_adapters`/`fuse_lora`/`unload_lora_weights` so the fused weights stay
   compatible with sequential CPU offload. Manual merge kept as a per-file
   fallback. Adds a `peft` dependency (installed in venv).
@@ -232,8 +232,8 @@ Combined `FluxImageGenerator` workspace split into three:
 
 ### Repo & infrastructure
 - Initialized git; project is now version-controlled.
-- Renamed `flux_image_generator_V1_9.py` → `flux_image_generator.py` and
-  `flux_lora_pair_downloader_V1_4.py` → `flux_lora_pair_downloader.py`.
+- Renamed `flux_image_generator_V1_9.py` -> `flux_image_generator.py` and
+  `flux_lora_pair_downloader_V1_4.py` -> `flux_lora_pair_downloader.py`.
 - Consolidated the 12 per-version `change_log_V1_*.md` files into this single
   `CHANGELOG.md`; removed `version_notes/` and the `combine_version_notes`
   script (no longer needed; one file, edited by hand).

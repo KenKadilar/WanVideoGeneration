@@ -2,18 +2,18 @@
 
 Local **Wan 2.1** text-to-video and image-to-video generation on a **6 GB consumer GPU.** A single-file PyQt6 desktop app with model selection, CivitAI checkpoint + LoRA support, a Gallery with full metadata, and Copy-to-Generation reproducibility. No API costs, no per-request limits.
 
-The 6 GB VRAM ceiling drove every design choice: bf16 throughout, sequential CPU offload, VAE tiling/slicing, and a one-time fp32→bf16 pre-conversion of the 14B model that halves its on-disk size with zero quality loss. The full engineering log is in [CHANGELOG.md](CHANGELOG.md).
+The 6 GB VRAM ceiling drove every design choice: bf16 throughout, sequential CPU offload, VAE tiling/slicing, and a one-time fp32->bf16 pre-conversion of the 14B model that halves its on-disk size with zero quality loss. The full engineering log is in [CHANGELOG.md](CHANGELOG.md).
 
 ## Features
 
 - **Three model options in one UI:** Wan 2.1 T2V-1.3B (fast testing), T2V-14B (quality), I2V-14B (image-to-video). Missing models are tagged `[MISSING]` in the dropdown and disable Generate until present.
 - **CivitAI checkpoints**: drop a `.safetensors` into `C:\AI_Models\Wan_Checkpoints\T2V-1.3B\` or `T2V-14B\` and it appears as `[CKP-1.3B]` / `[CKP-14B]` in the dropdown. Loaded via `WanTransformer3DModel.from_single_file()` + the base model's text-encoder / VAE / scheduler.
-- **Multi-LoRA stack** with reorder, per-LoRA weight, and preview thumbnails. Uses the diffusers-native `load_lora_weights` → `set_adapters` → `fuse_lora` → `unload_lora_weights` pipeline so the fused weights work with sequential CPU offload. Filtered to the selected model's base arch (1.3B vs 14B).
+- **Multi-LoRA stack** with reorder, per-LoRA weight, and preview thumbnails. Uses the diffusers-native `load_lora_weights` -> `set_adapters` -> `fuse_lora` -> `unload_lora_weights` pipeline so the fused weights work with sequential CPU offload. Filtered to the selected model's base arch (1.3B vs 14B).
 - **I2V start frame** via file picker, drag-drop, Ctrl+V paste, or a cross-workspace "From Flux Gallery" button that reads from a sibling [FluxImageGeneration](https://github.com/CanGitArchive/FluxImageGeneration) workspace if one exists (override path with the `FLUX_WORKSPACE_DIR` env var; falls back to disabled if not present).
 - **Gallery tab** (Outputs / Reference Frames / Best Of) with first-frame thumbnails (via ffmpeg), `QMediaPlayer` preview with seek slider, full Copy-to-Generation that restores model + checkpoint + LoRA stack + seed + prompts + start frame.
 - **Time estimator**: per-arch cold-start baseline refined by per-model history (last 50 runs, normalized by `width × height × num_frames`). Live countdown.
 - **Partial-download aware**: `model_exists()` checks both `model_index.json` and the absence of `.cache/huggingface/download/*.incomplete` files, so a half-pulled model correctly tags `[MISSING]`.
-- **Per-video JSON sidecar** with full reproduction metadata (model, base_model, checkpoint, prompt, negative, width, height, num_frames, fps, guidance, seed, start_frame, lora_stack, elapsed, timestamp). Designed for a future "connector" tool that chains image → video → audio.
+- **Per-video JSON sidecar** with full reproduction metadata (model, base_model, checkpoint, prompt, negative, width, height, num_frames, fps, guidance, seed, start_frame, lora_stack, elapsed, timestamp). Designed for a future "connector" tool that chains image -> video -> audio.
 
 ## Tech stack
 
@@ -29,9 +29,9 @@ Measured on this hardware:
 |---|---|---|---|
 | T2V-1.3B | 832×480 | ~41 min | 2.41 GB peak VRAM |
 | T2V-14B  | 832×480 | ~3.6 h  | ~44 GB RAM resident (bf16) |
-| T2V-14B  | 1280×720 | **not viable** | Activations exceed 64 GB RAM → pagefile thrashes → GPU stalls. ~8 days/clip projected. 480p is the realistic 14B quality tier on this box. |
+| T2V-14B  | 1280×720 | **not viable** | Activations exceed 64 GB RAM -> pagefile thrashes -> GPU stalls. ~8 days/clip projected. 480p is the realistic 14B quality tier on this box. |
 
-The 14B model ships fp32 on HuggingFace (transformer 54 GB + text encoder 22 GB). On 64 GB RAM the fp32→bf16 cast at load time overflows the Windows commit limit and segfaults. The fix (pre-convert to bf16 on disk via a shard-by-shard streaming cast) is documented in the CHANGELOG.
+The 14B model ships fp32 on HuggingFace (transformer 54 GB + text encoder 22 GB). On 64 GB RAM the fp32->bf16 cast at load time overflows the Windows commit limit and segfaults. The fix (pre-convert to bf16 on disk via a shard-by-shard streaming cast) is documented in the CHANGELOG.
 
 ## Install
 
